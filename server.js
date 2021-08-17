@@ -10,7 +10,12 @@ const server = express();
 const PORT = process.env.PORT;
 server.use(cors());
 
-
+class Forecast{
+    constructor(item){
+        this.date = item.datetime;
+        this.description = item.weather.description;
+    }
+}
 
 //localhost:3001/
 server.get('/', (req, res) => {
@@ -33,18 +38,28 @@ server.get('/weather', (req, res) => {
     // console.log('ghghgh',weatherData)
     let cityInfo = weatherData.find(city => {
         // console.log(item)
-        if (city.city_name.toLocaleLowerCase() === cityName.toLocaleLowerCase()) {
+        if (city.city_name.toLowerCase() === cityName.toLowerCase()) {
             // console.log('sdsdsdsdsd',item)
-            return cityName;
+            return city;
             
         }
         
     })
+    try{
+        let forecastData = cityInfo.data.map((item)=>{
+            return new Forecast(item);
+        })
+        res.send(forecastData)
+    }catch{
+        res.send("NOT FOUND: Error We Can't Find Your Data")
+
+    }
     // console.log('dfdfdfdfd',cityInfo.data)
-    res.send(cityInfo)
 })
 
-
+server.get('*',(req,resp)=>{
+    res.status(400).send("NOT FOUND")
+})
 
 
 server.listen(PORT, () => {
