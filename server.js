@@ -12,6 +12,10 @@ const PORT = process.env.PORT;
 server.use(cors());
 
 
+const weatherHandler = require("./components/Weather");
+
+const MovieHandler = require("./components/Movie")
+
 //______________________________________________________________________________________________________________________
 
 
@@ -20,9 +24,9 @@ server.use(cors());
 
 // // console.log('ghghgh',weatherData)
 // let cityInfo = weatherData.find(city => {
-//     // console.log(item)
+//     // console.log(item)    
 //     if (city.city_name.toLowerCase() === cityName.toLowerCase()) {
-//         // console.log('sdsdsdsdsd',item)
+//         // console.log('sdsdsdsdsd',item)    
 //         return city;
 
 //     }
@@ -30,11 +34,11 @@ server.use(cors());
 // })
 // try {
 //     let forecastData = cityInfo.data.map((item) => {
-//         return new Forecast(item);
+//         return new Forecast(item);    
 //     })
 //     res.send(forecastData)
 // } catch {
-//     res.send("NOT FOUND: Error We Can't Find Your Data")
+//     res.send("NOT FOUND: Error We Can't Find Your Data")    
 
 // }
 // // console.log('dfdfdfdfd',cityInfo.data)
@@ -45,13 +49,6 @@ server.use(cors());
 
 //_____________________________________________________________________________________________________________________
 
-class Forecast {
-    constructor(item) {
-        this.date = item.datetime;
-        this.description = item.weather.description;
-
-    }
-}
 
 //localhost:3001/
 server.get('/', (req, res) => {
@@ -59,86 +56,16 @@ server.get('/', (req, res) => {
 })
 
 
-server.get('/weather', weatherHandler)
-function weatherHandler(req2, res2) {
-
-    let weatherSearch = req2.query.searchQuery
-
-
-    let url = `https://api.weatherbit.io/v2.0/forecast/daily?city=${weatherSearch}&key=${process.env.WEATHER_API_KEY}`
-
-    // console.log(url);
-    try {
-        axios.get(url).then(weatherResults => {
-            // console.log("sssssssssssss")
-
-            let weatherArry = weatherResults.data.data.map((cityName) => {
-
-                return new Forecast(cityName)
-            })
-
-            res2.send(weatherArry)
-        });
-
-
-    }
-    catch (error) {
-        console.log('error from axios', error)
-        res.send(error)
-    }
-
-}
-
 
 //______________________________________________________________________________________________________
 
-
-class Movie {
-    constructor(movieData) {
-        this.title = movieData.title;
-        this.overview = movieData.overview;
-        this.average_votes = movieData.vote_average;
-        this.total_votes = movieData.vote_count;
-        this.image_url = `https://image.tmdb.org/t/p/orginal/${movieData.poster_path}`,
-            this.popularity = movieData.popularity;
-        this.released_on = movieData.release_date;
-
-    }
-}
-
-
-
-
+server.get('/weather', weatherHandler)
 server.get("/movie", MovieHandler);
-function MovieHandler(req1, res1) {
-
-    let movieSearch = req1.query.searchQuery
-
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&language=en-US&query=${movieSearch}&include_adult=false`;
-
-
-    try {
-        axios.get(url).then((movieSearch) => {
-
-            let movieArry = movieSearch.data.results.map((movieName) => {
-
-                return new Movie(movieName)
-            })
-
-            res1.send(movieArry)
-        });
-
-
-    }
-    catch ( error ) {
-        console.log('error from axios', error)
-        res.send(error)
-    }
-
-}
 
 
 
+
+//__________________________________________________________________________________________
 
 
 function notFoundHandler(req, res) {
