@@ -17,32 +17,46 @@ class Movie {
 
 
 
+let inMemory = {};
 
 
-function MovieHandler(req1, res1) {
+function MovieHandler(req, res) {
 
-    let movieSearch = req1.query.searchQuery
+    let movieSearch = req.query.searchQuery
 
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&language=en-US&query=${movieSearch}&include_adult=false`;
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&language=en-US&query=${movieSearch}&include_adult=false`
+
+    if (inMemory[movieSearch] !== undefined) {
+        console.log('cache hit');
+        res.send(inMemory[movieSearch]);
+
+    } else {
+        console.log('cache miss')
 
 
-    try {
-        axios.get(url).then((movieSearch) => {
 
-            let movieArry = movieSearch.data.results.map((movieName) => {
 
-                return new Movie(movieName)
-            })
+        try {
+            axios.get(url).then((movieSearch) => {
 
-            res1.send(movieArry)
-        });
+                let movieArry = movieSearch.data.results.map((movieName) => {
 
+                    return new Movie(movieName)
+                })
+                inMemory[movieSearch]= movieArry
+                // console.log(inMemory)
+
+
+                res.send(movieArry)
+            });
+
+
+        }
+        catch (error) {
+            console.log('error from axios', error)
+            res.send(error)
+        }
 
     }
-    catch ( error ) {
-        console.log('error from axios', error)
-        res.send(error)
-    }
-
 }
 module.exports = MovieHandler;
